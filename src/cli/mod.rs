@@ -9,6 +9,8 @@ pub mod patch_cmd;
 pub mod scripts_cmd;
 pub mod targets_cmd;
 pub mod test_cmd;
+pub mod uninstall_cmd;
+pub mod update_cmd;
 pub mod validate_cmd;
 
 use clap::{Parser, Subcommand};
@@ -80,6 +82,10 @@ pub enum Command {
     Cert(cert_cmd::CertArgs),
     /// Package build artifacts
     Package(package_cmd::PackageArgs),
+    /// Update forge to the latest version
+    Update(update_cmd::UpdateArgs),
+    /// Uninstall forge from your system
+    Uninstall(uninstall_cmd::UninstallArgs),
 }
 
 pub fn dispatch(cli: Cli) -> anyhow::Result<()> {
@@ -99,5 +105,7 @@ pub fn dispatch(cli: Cli) -> anyhow::Result<()> {
         Command::Config(args) => config_cmd::execute(args, &output),
         Command::Cert(args) => cert_cmd::execute(args, &output),
         Command::Package(args) => package_cmd::execute(args, &output),
+        Command::Update(args) => update_cmd::execute(args, &output),
+        Command::Uninstall(args) => uninstall_cmd::execute(args, &output),
     }
 }

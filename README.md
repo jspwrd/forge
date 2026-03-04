@@ -15,13 +15,41 @@ Forge simplifies compiling, patching, validating, and packaging C/C++ projects a
 - **Certificate management** — generate and manage certificates for your project
 - **Project scaffolding** — `forge new` and `forge init` create ready-to-build project structures
 
-## Quick Start
+## Installation
+
+### One-line install (Linux / macOS)
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/jspwrd/forge/main/install.sh | bash
+```
+
+Or install a specific version:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/jspwrd/forge/main/install.sh | bash -s -- v0.1.0
+```
+
+The installer places the binary in `~/.forge/bin` and automatically adds it to your shell's `PATH` (supports bash, zsh, and fish).
 
 ### Install from source
 
 ```sh
 cargo install --path .
 ```
+
+### Updating
+
+```sh
+forge update
+```
+
+### Uninstalling
+
+```sh
+forge uninstall
+```
+
+## Quick Start
 
 ### Create a project
 
@@ -58,6 +86,8 @@ forge test
 | `config`   | Show or manage configuration                 |
 | `cert`     | Manage certificates                          |
 | `package`  | Package build artifacts                      |
+| `update`   | Update forge to the latest version           |
+| `uninstall`| Uninstall forge from your system             |
 
 ## Global Options
 

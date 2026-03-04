@@ -8,6 +8,7 @@ pub mod package;
 pub mod patch;
 pub mod scaffold;
 pub mod scripts;
+pub mod selfupdate;
 pub mod test_runner;
 pub mod util;
 pub mod validate;
