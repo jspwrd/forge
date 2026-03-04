@@ -1,0 +1,43 @@
+[project]
+name = "multiarch"
+version = "0.1.0"
+description = "Cross-compilation example targeting multiple architectures"
+
+[build]
+compiler = "gcc"
+standard = "c11"
+static = true
+strip = true
+sources = ["src/**/*.c"]
+includes = ["src"]
+link = ["pthread"]
+
+[build.flags]
+common = ["-Wall", "-Wextra", "-Werror"]
+release = ["-O2", "-DNDEBUG"]
+debug = ["-g", "-O0", "-DDEBUG"]
+
+# --- Targets ---
+
+[targets.linux-x86_64]
+cc = "gcc"
+enabled = true
+
+[targets.linux-aarch64]
+cc = "aarch64-linux-gnu-gcc"
+sysroot = "/usr/aarch64-linux-gnu"
+flags = ["-march=armv8-a"]
+exclude = ["src/platform/windows_*.c"]
+enabled = true
+
+[targets.linux-armhf]
+cc = "arm-linux-gnueabihf-gcc"
+sysroot = "/usr/arm-linux-gnueabihf"
+flags = ["-march=armv7-a", "-mfpu=vfpv3-d16", "-mfloat-abi=hard"]
+exclude = ["src/platform/windows_*.c"]
+enabled = true
+
+[targets.linux-mips]
+cc = "mips-linux-gnu-gcc"
+flags = ["-mips32r2"]
+enabled = false   # disabled — skipped during --all-targets

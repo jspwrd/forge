@@ -1,0 +1,15 @@
+[project]
+name = "hello"
+version = "0.1.0"
+description = "A minimal Forge project"
+
+[build]
+compiler = "gcc"
+standard = "c11"
+sources = ["src/**/*.c"]
+includes = ["src"]
+
+[build.flags]
+common = ["-Wall", "-Wextra"]
+release = ["-O2", "-DNDEBUG"]
+debug = ["-g", "-O0", "-DDEBUG"]
