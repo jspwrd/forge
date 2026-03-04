@@ -42,8 +42,7 @@ pub fn secure_delete(path: &Path) -> Result<()> {
         file.flush()?;
 
         drop(file);
-        fs::remove_file(path)
-            .with_context(|| format!("failed to remove {}", path.display()))?;
+        fs::remove_file(path).with_context(|| format!("failed to remove {}", path.display()))?;
     }
 
     Ok(())

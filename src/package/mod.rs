@@ -43,7 +43,11 @@ pub fn execute_package(args: PackageArgs, output: &OutputConfig) -> Result<()> {
     Ok(())
 }
 
-pub fn find_binary(project_dir: &Path, project_name: &str, target: Option<&str>) -> Result<std::path::PathBuf> {
+pub fn find_binary(
+    project_dir: &Path,
+    project_name: &str,
+    target: Option<&str>,
+) -> Result<std::path::PathBuf> {
     let bin_dir = project_dir.join("bin");
     let binary_name = match target {
         Some(t) => format!("{project_name}-{t}"),
@@ -51,7 +55,10 @@ pub fn find_binary(project_dir: &Path, project_name: &str, target: Option<&str>)
     };
     let path = bin_dir.join(&binary_name);
     if !path.exists() {
-        bail!("binary not found: {}. Run `forge build` first.", path.display());
+        bail!(
+            "binary not found: {}. Run `forge build` first.",
+            path.display()
+        );
     }
     Ok(path)
 }

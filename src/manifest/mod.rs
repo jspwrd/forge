@@ -24,8 +24,8 @@ pub fn find_manifest(start: &Path) -> Option<PathBuf> {
 }
 
 pub fn load(path: &Path) -> Result<ForgeManifest> {
-    let content =
-        std::fs::read_to_string(path).with_context(|| format!("failed to read {}", path.display()))?;
+    let content = std::fs::read_to_string(path)
+        .with_context(|| format!("failed to read {}", path.display()))?;
     let manifest: ForgeManifest =
         toml::from_str(&content).with_context(|| format!("failed to parse {}", path.display()))?;
     validate_manifest(&manifest)?;
@@ -35,7 +35,10 @@ pub fn load(path: &Path) -> Result<ForgeManifest> {
 pub fn load_from_cwd() -> Result<ForgeManifest> {
     let cwd = std::env::current_dir().context("failed to determine current directory")?;
     let path = find_manifest(&cwd).ok_or_else(|| {
-        anyhow::anyhow!("no {} found in current directory or any parent", MANIFEST_NAME)
+        anyhow::anyhow!(
+            "no {} found in current directory or any parent",
+            MANIFEST_NAME
+        )
     })?;
     load(&path)
 }
@@ -43,7 +46,10 @@ pub fn load_from_cwd() -> Result<ForgeManifest> {
 pub fn manifest_dir() -> Result<PathBuf> {
     let cwd = std::env::current_dir().context("failed to determine current directory")?;
     let path = find_manifest(&cwd).ok_or_else(|| {
-        anyhow::anyhow!("no {} found in current directory or any parent", MANIFEST_NAME)
+        anyhow::anyhow!(
+            "no {} found in current directory or any parent",
+            MANIFEST_NAME
+        )
     })?;
     Ok(path
         .parent()

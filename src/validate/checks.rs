@@ -34,7 +34,9 @@ pub fn check_debug_symbols(binary: &Path, config: &ValidateConfig) -> Result<Che
         || result.stdout.contains("not stripped")
         || result.stdout.contains("debug_info")
     {
-        return Ok(CheckResult::Fail("binary contains debug symbols".to_string()));
+        return Ok(CheckResult::Fail(
+            "binary contains debug symbols".to_string(),
+        ));
     }
 
     // Also scan for .debug_ sections
@@ -57,10 +59,7 @@ pub fn check_plaintext_strings(binary: &Path, config: &ValidateConfig) -> Result
 
     for needle in &config.no_plaintext_strings {
         let needle_bytes = needle.as_bytes();
-        if data
-            .windows(needle_bytes.len())
-            .any(|w| w == needle_bytes)
-        {
+        if data.windows(needle_bytes.len()).any(|w| w == needle_bytes) {
             return Ok(CheckResult::Fail(format!(
                 "binary contains plaintext string: '{needle}'"
             )));
@@ -108,10 +107,7 @@ pub fn check_binary_size(binary: &Path, config: &ValidateConfig) -> Result<Check
     Ok(CheckResult::Pass)
 }
 
-pub fn check_unpatched_sentinels(
-    binary: &Path,
-    sentinels: &[String],
-) -> Result<CheckResult> {
+pub fn check_unpatched_sentinels(binary: &Path, sentinels: &[String]) -> Result<CheckResult> {
     if sentinels.is_empty() {
         return Ok(CheckResult::Pass);
     }
@@ -142,7 +138,12 @@ pub fn check_rpath(binary: &Path, config: &ValidateConfig) -> Result<CheckResult
     let result = if cfg!(target_os = "macos") {
         process::run_command("otool", &["-l", binary.to_str().unwrap_or("")], None, None)
     } else {
-        process::run_command("readelf", &["-d", binary.to_str().unwrap_or("")], None, None)
+        process::run_command(
+            "readelf",
+            &["-d", binary.to_str().unwrap_or("")],
+            None,
+            None,
+        )
     };
 
     match result {

@@ -30,8 +30,15 @@ pub fn execute_patch(args: PatchArgs, output: &OutputConfig) -> Result<()> {
     let fields = parse_field_args(&args.fields)?;
 
     if fields.is_empty() {
-        bail!("no patch fields specified. Available fields: {}",
-            manifest.patch.keys().map(|k| format!("--{}", k.replace('_', "-"))).collect::<Vec<_>>().join(", "));
+        bail!(
+            "no patch fields specified. Available fields: {}",
+            manifest
+                .patch
+                .keys()
+                .map(|k| format!("--{}", k.replace('_', "-")))
+                .collect::<Vec<_>>()
+                .join(", ")
+        );
     }
 
     for (field_name, value) in &fields {
@@ -60,9 +67,16 @@ pub fn execute_patch(args: PatchArgs, output: &OutputConfig) -> Result<()> {
     atomic_write(binary_path, &data)?;
 
     // Verify size unchanged
-    assert_eq!(data.len(), original_len, "binary size changed during patching");
+    assert_eq!(
+        data.len(),
+        original_len,
+        "binary size changed during patching"
+    );
 
-    output::status("Patched", &format!("{} ({} fields)", args.binary, fields.len()));
+    output::status(
+        "Patched",
+        &format!("{} ({} fields)", args.binary, fields.len()),
+    );
 
     Ok(())
 }

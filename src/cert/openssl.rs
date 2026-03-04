@@ -15,7 +15,10 @@ pub fn generate_ca(cn: &str, org: &str, out: &str, output: &OutputConfig) -> Res
         crate::util::fs::ensure_dir(parent)?;
     }
 
-    let key_path = format!("{}.key", out.trim_end_matches(".pem").trim_end_matches(".crt"));
+    let key_path = format!(
+        "{}.key",
+        out.trim_end_matches(".pem").trim_end_matches(".crt")
+    );
 
     output::status("Generating", &format!("CA certificate (CN={cn}, O={org})"));
 
@@ -23,9 +26,8 @@ pub fn generate_ca(cn: &str, org: &str, out: &str, output: &OutputConfig) -> Res
     process::run_command_checked(
         "openssl",
         &[
-            "req", "-x509", "-newkey", "rsa:4096", "-keyout", &key_path,
-            "-out", out, "-days", "3650", "-nodes",
-            "-subj", &subject,
+            "req", "-x509", "-newkey", "rsa:4096", "-keyout", &key_path, "-out", out, "-days",
+            "3650", "-nodes", "-subj", &subject,
         ],
         None,
         None,
@@ -47,25 +49,33 @@ pub fn self_sign(cn: &str, days: u32, out: &str, output: &OutputConfig) -> Resul
         crate::util::fs::ensure_dir(parent)?;
     }
 
-    let key_path = format!("{}.key", out.trim_end_matches(".pem").trim_end_matches(".crt"));
+    let key_path = format!(
+        "{}.key",
+        out.trim_end_matches(".pem").trim_end_matches(".crt")
+    );
     let days_str = days.to_string();
 
-    output::status("Generating", &format!("self-signed certificate (CN={cn}, {days} days)"));
+    output::status(
+        "Generating",
+        &format!("self-signed certificate (CN={cn}, {days} days)"),
+    );
 
     let subject = format!("/CN={cn}");
     process::run_command_checked(
         "openssl",
         &[
-            "req", "-x509", "-newkey", "rsa:2048", "-keyout", &key_path,
-            "-out", out, "-days", &days_str, "-nodes",
-            "-subj", &subject,
+            "req", "-x509", "-newkey", "rsa:2048", "-keyout", &key_path, "-out", out, "-days",
+            &days_str, "-nodes", "-subj", &subject,
         ],
         None,
         None,
     )?;
 
     output::status("Generated", &format!("cert: {out}, key: {key_path}"));
-    output::verbose(output, &format!("subject: {subject}, validity: {days} days"));
+    output::verbose(
+        output,
+        &format!("subject: {subject}, validity: {days} days"),
+    );
 
     Ok(())
 }

@@ -29,11 +29,7 @@ pub fn run_tests(output: &OutputConfig) -> Result<()> {
     }
 
     // Run C tests
-    let compiler = manifest
-        .build
-        .compiler
-        .as_deref()
-        .unwrap_or("gcc");
+    let compiler = manifest.build.compiler.as_deref().unwrap_or("gcc");
     output::status("Running", "C tests");
     let pass = c_test::run_c_tests(&project_dir, compiler, output)?;
     if !pass {

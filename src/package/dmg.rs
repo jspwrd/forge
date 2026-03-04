@@ -38,8 +38,10 @@ pub fn package_dmg(
         "hdiutil",
         &[
             "create",
-            "-volname", project_name,
-            "-srcfolder", staging.path().to_str().unwrap_or(""),
+            "-volname",
+            project_name,
+            "-srcfolder",
+            staging.path().to_str().unwrap_or(""),
             "-ov",
             dmg_path.to_str().unwrap_or(""),
         ],

@@ -1,0 +1,5 @@
+target/
+.git/
+bin/
+*.o
+.forge-cache

@@ -5,7 +5,11 @@ use anyhow::Result;
 use crate::util::output::{self, OutputConfig};
 use crate::util::process;
 
-pub fn run_shellcheck(scripts: &[(String, String)], project_dir: &Path, output: &OutputConfig) -> Result<bool> {
+pub fn run_shellcheck(
+    scripts: &[(String, String)],
+    project_dir: &Path,
+    output: &OutputConfig,
+) -> Result<bool> {
     // Check if shellcheck is available
     if which::which("shellcheck").is_err() {
         output::warning("shellcheck not found, skipping script checks");

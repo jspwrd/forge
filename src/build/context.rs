@@ -25,8 +25,7 @@ impl BuildContext {
         let build = &manifest.build;
 
         let compiler = if let Some((_, t)) = &target {
-            t.cc
-                .clone()
+            t.cc.clone()
                 .or_else(|| build.compiler.clone())
                 .unwrap_or_else(|| "gcc".to_string())
         } else {

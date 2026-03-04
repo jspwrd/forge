@@ -22,7 +22,14 @@ pub fn execute_build(args: BuildArgs, output: &OutputConfig) -> Result<()> {
     if args.all_targets {
         build_all_targets(&manifest, &project_dir, &bin_dir, &args, output)?;
     } else if let Some(ref target_name) = args.target {
-        build_single_target(&manifest, target_name, &project_dir, &bin_dir, &args, output)?;
+        build_single_target(
+            &manifest,
+            target_name,
+            &project_dir,
+            &bin_dir,
+            &args,
+            output,
+        )?;
     } else {
         build_native(&manifest, &project_dir, &bin_dir, &args, output)?;
     }
@@ -49,7 +56,15 @@ fn build_all_targets(
         output::status("Building", &format!("target '{name}'"));
         let ctx = context::BuildContext::new(manifest, Some((name, target)), args.release)?;
 
-        match do_build(&ctx, project_dir, bin_dir, &manifest.project.name, Some(name), args, output) {
+        match do_build(
+            &ctx,
+            project_dir,
+            bin_dir,
+            &manifest.project.name,
+            Some(name),
+            args,
+            output,
+        ) {
             Ok(()) => {
                 success += 1;
                 output::status("Finished", &format!("target '{name}'"));
@@ -88,7 +103,15 @@ fn build_single_target(
 
     output::status("Building", &format!("target '{target_name}'"));
     let ctx = context::BuildContext::new(manifest, Some((target_name, target)), args.release)?;
-    do_build(&ctx, project_dir, bin_dir, &manifest.project.name, Some(target_name), args, output)?;
+    do_build(
+        &ctx,
+        project_dir,
+        bin_dir,
+        &manifest.project.name,
+        Some(target_name),
+        args,
+        output,
+    )?;
     output::status("Finished", &format!("target '{target_name}'"));
     Ok(())
 }
@@ -102,7 +125,15 @@ fn build_native(
 ) -> Result<()> {
     output::status("Building", &format!("project '{}'", manifest.project.name));
     let ctx = context::BuildContext::new(manifest, None, args.release)?;
-    do_build(&ctx, project_dir, bin_dir, &manifest.project.name, None, args, output)?;
+    do_build(
+        &ctx,
+        project_dir,
+        bin_dir,
+        &manifest.project.name,
+        None,
+        args,
+        output,
+    )?;
     output::status("Finished", &format!("project '{}'", manifest.project.name));
     Ok(())
 }
@@ -150,7 +181,13 @@ fn do_build(
         }
 
         output::verbose(output, &format!("compiling {}", source.display()));
-        compiler::compile_object(&ctx.compiler, source, &obj_path, &ctx.all_flags(), &ctx.includes)?;
+        compiler::compile_object(
+            &ctx.compiler,
+            source,
+            &obj_path,
+            &ctx.all_flags(),
+            &ctx.includes,
+        )?;
         cache.update(&cache_key, source)?;
         compiled += 1;
         objects.push(obj_path);
@@ -172,7 +209,13 @@ fn do_build(
         output,
         &format!("linking {} -> {}", objects.len(), output_path.display()),
     );
-    compiler::link(&ctx.compiler, &objects, &output_path, &ctx.link_flags(), &ctx.link_libs)?;
+    compiler::link(
+        &ctx.compiler,
+        &objects,
+        &output_path,
+        &ctx.link_flags(),
+        &ctx.link_libs,
+    )?;
 
     // Strip if configured
     if ctx.strip {

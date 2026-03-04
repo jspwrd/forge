@@ -62,9 +62,7 @@ pub fn link(
         cmd.arg(format!("-l{lib}"));
     }
 
-    let result = cmd
-        .output()
-        .context("failed to execute linker")?;
+    let result = cmd.output().context("failed to execute linker")?;
 
     if !result.status.success() {
         let stderr = String::from_utf8_lossy(&result.stderr);
@@ -89,9 +87,7 @@ pub fn strip_binary(path: &Path) -> Result<()> {
 }
 
 pub fn object_path(obj_dir: &Path, source: &Path, project_dir: &Path) -> PathBuf {
-    let relative = source
-        .strip_prefix(project_dir)
-        .unwrap_or(source);
+    let relative = source.strip_prefix(project_dir).unwrap_or(source);
     let obj_name = relative.to_string_lossy().replace(['/', '\\'], "_");
     obj_dir.join(format!("{obj_name}.o"))
 }
