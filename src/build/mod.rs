@@ -2,7 +2,6 @@ mod compiler;
 mod context;
 mod dependency;
 mod incremental;
-mod toolchain;
 
 use std::path::Path;
 
@@ -170,7 +169,9 @@ fn do_build(
 
     for source in &sources {
         let obj_path = compiler::object_path(&obj_dir, source, project_dir);
-        crate::util::fs::ensure_dir(obj_path.parent().expect("object path has parent"))?;
+        if let Some(parent) = obj_path.parent() {
+            crate::util::fs::ensure_dir(parent)?;
+        }
 
         let cache_key = incremental::cache_key(source, &ctx.all_flags())?;
 

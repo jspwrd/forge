@@ -174,7 +174,11 @@ pub fn execute_update(force: bool, output: &OutputConfig) -> Result<()> {
 
     if let Err(e) = fs::copy(&new_binary, &exe_path) {
         // Restore backup on failure
-        fs::rename(&backup, &exe_path).ok();
+        if let Err(restore_err) = fs::rename(&backup, &exe_path) {
+            bail!(
+                "failed to install new binary: {e}; also failed to restore backup: {restore_err}"
+            );
+        }
         bail!("failed to install new binary: {e}");
     }
 
@@ -246,15 +250,17 @@ pub fn execute_uninstall(_output: &OutputConfig) -> Result<()> {
         }
     }
 
-    println!();
+    eprintln!();
     output::status("Uninstalled", "forge has been removed.");
 
     if is_forge_dir {
-        println!();
-        println!("You can also remove the PATH entry from your shell profile:");
-        println!(
-            "  Remove the line: export PATH=\"{}:$PATH\"",
-            exe_dir.display()
+        eprintln!();
+        output::status(
+            "Note",
+            &format!(
+                "You can also remove the PATH entry from your shell profile:\n             Remove the line: export PATH=\"{}:$PATH\"",
+                exe_dir.display()
+            ),
         );
     }
 

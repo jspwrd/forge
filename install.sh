@@ -112,7 +112,7 @@ main() {
         info "Fetching" "latest release..."
         version="$(get_latest_version)"
         if [ -z "$version" ]; then
-            err "could not determine latest version. Pass a version explicitly: install.sh v0.1.0"
+            err "could not determine latest version. Pass a version explicitly: install.sh v1.0.0"
         fi
     fi
 

@@ -206,3 +206,146 @@ fn parse_size(s: &str) -> Result<u64> {
 
     Ok(num * multiplier)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::manifest::types::ValidateConfig;
+
+    #[test]
+    fn parse_size_bytes() {
+        assert_eq!(parse_size("100B").unwrap(), 100);
+        assert_eq!(parse_size("100").unwrap(), 100);
+    }
+
+    #[test]
+    fn parse_size_kilobytes() {
+        assert_eq!(parse_size("1KB").unwrap(), 1024);
+        assert_eq!(parse_size("10KB").unwrap(), 10240);
+    }
+
+    #[test]
+    fn parse_size_megabytes() {
+        assert_eq!(parse_size("1MB").unwrap(), 1048576);
+        assert_eq!(parse_size("5MB").unwrap(), 5 * 1024 * 1024);
+    }
+
+    #[test]
+    fn parse_size_gigabytes() {
+        assert_eq!(parse_size("1GB").unwrap(), 1024 * 1024 * 1024);
+    }
+
+    #[test]
+    fn parse_size_with_whitespace() {
+        assert_eq!(parse_size("  10 MB  ").unwrap(), 10 * 1024 * 1024);
+    }
+
+    #[test]
+    fn parse_size_invalid() {
+        assert!(parse_size("abcMB").is_err());
+    }
+
+    #[test]
+    fn check_result_is_fail() {
+        assert!(CheckResult::Fail("x".into()).is_fail());
+        assert!(!CheckResult::Pass.is_fail());
+        assert!(!CheckResult::Warn("x".into()).is_fail());
+    }
+
+    #[test]
+    fn check_result_is_warn() {
+        assert!(CheckResult::Warn("x".into()).is_warn());
+        assert!(!CheckResult::Pass.is_warn());
+        assert!(!CheckResult::Fail("x".into()).is_warn());
+    }
+
+    #[test]
+    fn debug_symbols_check_skipped_when_disabled() {
+        let config = ValidateConfig {
+            no_debug_symbols: false,
+            ..Default::default()
+        };
+        let tmp = tempfile::NamedTempFile::new().unwrap();
+        std::fs::write(tmp.path(), b"some binary data").unwrap();
+        let result = check_debug_symbols(tmp.path(), &config).unwrap();
+        assert!(matches!(result, CheckResult::Pass));
+    }
+
+    #[test]
+    fn plaintext_strings_detected() {
+        let tmp = tempfile::NamedTempFile::new().unwrap();
+        std::fs::write(tmp.path(), b"contains password in binary").unwrap();
+        let config = ValidateConfig {
+            no_plaintext_strings: vec!["password".to_string()],
+            ..Default::default()
+        };
+        let result = check_plaintext_strings(tmp.path(), &config).unwrap();
+        assert!(result.is_fail());
+    }
+
+    #[test]
+    fn plaintext_strings_not_found() {
+        let tmp = tempfile::NamedTempFile::new().unwrap();
+        std::fs::write(tmp.path(), b"clean binary data").unwrap();
+        let config = ValidateConfig {
+            no_plaintext_strings: vec!["password".to_string()],
+            ..Default::default()
+        };
+        let result = check_plaintext_strings(tmp.path(), &config).unwrap();
+        assert!(matches!(result, CheckResult::Pass));
+    }
+
+    #[test]
+    fn unpatched_sentinels_found() {
+        let tmp = tempfile::NamedTempFile::new().unwrap();
+        std::fs::write(tmp.path(), b"data AAAA_CALLBACK_IP_AAAA rest").unwrap();
+        let sentinels = vec!["AAAA_CALLBACK_IP_AAAA".to_string()];
+        let result = check_unpatched_sentinels(tmp.path(), &sentinels).unwrap();
+        assert!(result.is_warn());
+    }
+
+    #[test]
+    fn unpatched_sentinels_clean() {
+        let tmp = tempfile::NamedTempFile::new().unwrap();
+        std::fs::write(tmp.path(), b"clean binary without sentinels").unwrap();
+        let sentinels = vec!["AAAA_CALLBACK_IP_AAAA".to_string()];
+        let result = check_unpatched_sentinels(tmp.path(), &sentinels).unwrap();
+        assert!(matches!(result, CheckResult::Pass));
+    }
+
+    #[test]
+    fn buildpaths_detected() {
+        let tmp = tempfile::NamedTempFile::new().unwrap();
+        std::fs::write(tmp.path(), b"binary with /home/user/build path").unwrap();
+        let config = ValidateConfig {
+            no_buildpaths: true,
+            ..Default::default()
+        };
+        let result = check_buildpaths(tmp.path(), &config).unwrap();
+        assert!(result.is_fail());
+    }
+
+    #[test]
+    fn binary_size_within_limit() {
+        let tmp = tempfile::NamedTempFile::new().unwrap();
+        std::fs::write(tmp.path(), &vec![0u8; 100]).unwrap();
+        let config = ValidateConfig {
+            max_binary_size: Some("1KB".to_string()),
+            ..Default::default()
+        };
+        let result = check_binary_size(tmp.path(), &config).unwrap();
+        assert!(matches!(result, CheckResult::Pass));
+    }
+
+    #[test]
+    fn binary_size_exceeds_limit() {
+        let tmp = tempfile::NamedTempFile::new().unwrap();
+        std::fs::write(tmp.path(), &vec![0u8; 2048]).unwrap();
+        let config = ValidateConfig {
+            max_binary_size: Some("1KB".to_string()),
+            ..Default::default()
+        };
+        let result = check_binary_size(tmp.path(), &config).unwrap();
+        assert!(result.is_fail());
+    }
+}
