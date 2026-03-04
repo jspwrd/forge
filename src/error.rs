@@ -60,3 +60,31 @@ impl ForgeError {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn exit_codes_match_categories() {
+        assert_eq!(ForgeError::Build("x".into()).exit_code(), 1);
+        assert_eq!(ForgeError::Config("x".into()).exit_code(), 2);
+        assert_eq!(ForgeError::Scaffold("x".into()).exit_code(), 2);
+        assert_eq!(ForgeError::Toolchain("x".into()).exit_code(), 3);
+        assert_eq!(ForgeError::Cert("x".into()).exit_code(), 3);
+        assert_eq!(ForgeError::Package("x".into()).exit_code(), 3);
+    }
+
+    #[test]
+    fn error_messages_include_context() {
+        let err = ForgeError::Build("compilation failed".into());
+        assert_eq!(err.to_string(), "Build error: compilation failed");
+    }
+
+    #[test]
+    fn io_error_converts() {
+        let io_err = std::io::Error::new(std::io::ErrorKind::NotFound, "gone");
+        let forge_err: ForgeError = io_err.into();
+        assert_eq!(forge_err.exit_code(), 1);
+    }
+}

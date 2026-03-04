@@ -111,3 +111,108 @@ pub struct PackageConfig {
     #[serde(default)]
     pub formats: Vec<String>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_minimal_manifest() {
+        let toml_str = r#"
+[project]
+name = "test"
+version = "1.0.0"
+"#;
+        let manifest: ForgeManifest = toml::from_str(toml_str).unwrap();
+        assert_eq!(manifest.project.name, "test");
+        assert_eq!(manifest.project.version, "1.0.0");
+        assert!(manifest.targets.is_empty());
+        assert!(manifest.patch.is_empty());
+    }
+
+    #[test]
+    fn parse_full_manifest() {
+        let toml_str = r#"
+[project]
+name = "myproject"
+version = "2.0.0"
+description = "A test project"
+
+[build]
+compiler = "gcc"
+standard = "c11"
+static = true
+strip = true
+sources = ["src/**/*.c"]
+includes = ["include"]
+link = ["pthread"]
+
+[build.flags]
+common = ["-Wall"]
+release = ["-O2"]
+debug = ["-g"]
+
+[targets.linux-x86]
+cc = "gcc"
+flags = ["-m32"]
+
+[patch.callback_ip]
+sentinel = "AAAA_IP_AAAA"
+type = "ipv4"
+size = 16
+
+[validate]
+no_debug_symbols = true
+no_plaintext_strings = ["secret"]
+max_binary_size = "1MB"
+
+[package]
+formats = ["raw", "deb"]
+"#;
+        let manifest: ForgeManifest = toml::from_str(toml_str).unwrap();
+        assert_eq!(manifest.project.name, "myproject");
+        assert_eq!(
+            manifest.project.description.as_deref(),
+            Some("A test project")
+        );
+        assert_eq!(manifest.build.compiler.as_deref(), Some("gcc"));
+        assert!(manifest.build.r#static);
+        assert!(manifest.build.strip);
+        assert_eq!(manifest.build.sources, vec!["src/**/*.c"]);
+        assert_eq!(manifest.targets.len(), 1);
+        assert!(manifest.targets.contains_key("linux-x86"));
+        assert_eq!(manifest.patch.len(), 1);
+        assert_eq!(manifest.patch["callback_ip"].sentinel, "AAAA_IP_AAAA");
+        assert!(manifest.validate.no_debug_symbols);
+        assert_eq!(manifest.package.formats, vec!["raw", "deb"]);
+    }
+
+    #[test]
+    fn target_enabled_defaults_to_true() {
+        let toml_str = r#"
+[project]
+name = "test"
+version = "1.0.0"
+
+[targets.linux]
+cc = "gcc"
+"#;
+        let manifest: ForgeManifest = toml::from_str(toml_str).unwrap();
+        assert!(manifest.targets["linux"].enabled);
+    }
+
+    #[test]
+    fn target_can_be_disabled() {
+        let toml_str = r#"
+[project]
+name = "test"
+version = "1.0.0"
+
+[targets.linux]
+cc = "gcc"
+enabled = false
+"#;
+        let manifest: ForgeManifest = toml::from_str(toml_str).unwrap();
+        assert!(!manifest.targets["linux"].enabled);
+    }
+}

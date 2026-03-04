@@ -51,8 +51,7 @@ pub fn manifest_dir() -> Result<PathBuf> {
             MANIFEST_NAME
         )
     })?;
-    Ok(path
-        .parent()
-        .expect("manifest path must have a parent")
-        .to_path_buf())
+    path.parent()
+        .map(|p| p.to_path_buf())
+        .context("manifest path must have a parent directory")
 }

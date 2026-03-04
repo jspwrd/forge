@@ -1,7 +1,13 @@
 [package]
 name = "forge"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2024"
+description = "Build system for C/C++ cross-compilation"
+license = "MIT"
+repository = "https://github.com/jspwrd/forge"
+readme = "README.md"
+keywords = ["build", "cross-compilation", "c", "cpp", "toolchain"]
+categories = ["development-tools::build-utils"]
 
 [dependencies]
 clap = { version = "4", features = ["derive"] }
