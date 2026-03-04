@@ -1,0 +1,61 @@
+[project]
+name = "agent"
+version = "1.0.0"
+description = "Binary patching and validation example"
+
+[build]
+compiler = "gcc"
+standard = "c11"
+static = true
+strip = true
+sources = ["src/**/*.c"]
+includes = ["src"]
+
+[build.flags]
+common = ["-Wall", "-Wextra", "-Werror"]
+release = ["-O2", "-DNDEBUG"]
+debug = ["-g", "-O0", "-DDEBUG"]
+
+[targets.linux-x86_64]
+cc = "gcc"
+enabled = true
+
+# --- Patch fields ---
+# Each sentinel is a unique marker compiled into the binary.
+# `forge patch` replaces them with operator-specific values at deploy time.
+
+[patch.callback_ip]
+sentinel = "AAAA_CALLBACK_IP_AAAA"
+type = "string"
+size = 20
+
+[patch.callback_port]
+sentinel = "BBBB_CALLBACK_PORT_BBBB"
+type = "u16"
+size = 22
+
+[patch.sleep_seconds]
+sentinel = "CCCC_SLEEP_SECS_CCCC"
+type = "u32"
+size = 20
+
+# --- Validation rules ---
+# Checks applied by `forge validate` to catch common release mistakes.
+
+[validate]
+no_debug_symbols = true
+no_plaintext_strings = ["password", "secret", "/home/"]
+no_compiler_watermarks = true
+max_binary_size = "1MB"
+no_rpath = true
+no_buildpaths = true
+
+# --- Scripts ---
+
+[scripts]
+deploy = "scripts/deploy.sh"
+
+# --- Packaging ---
+
+[package]
+formats = ["raw"]
