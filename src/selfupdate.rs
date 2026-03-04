@@ -240,10 +240,7 @@ pub fn execute_uninstall(_output: &OutputConfig) -> Result<()> {
         }
 
         // Remove .forge dir if empty
-        if forge_home
-            .read_dir()
-            .is_ok_and(|mut d| d.next().is_none())
-        {
+        if forge_home.read_dir().is_ok_and(|mut d| d.next().is_none()) {
             fs::remove_dir(forge_home).ok();
             output::status("Removed", &format!("{}", forge_home.display()));
         }
