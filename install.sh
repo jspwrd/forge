@@ -45,6 +45,59 @@ download() {
     fi
 }
 
+detect_shell_profile() {
+    local shell_name
+    shell_name="$(basename "${SHELL:-/bin/sh}")"
+
+    case "$shell_name" in
+        bash)
+            if [ -f "$HOME/.bashrc" ]; then
+                echo "$HOME/.bashrc"
+            elif [ -f "$HOME/.bash_profile" ]; then
+                echo "$HOME/.bash_profile"
+            else
+                echo "$HOME/.bashrc"
+            fi
+            ;;
+        zsh)
+            echo "${ZDOTDIR:-$HOME}/.zshrc"
+            ;;
+        fish)
+            echo "$HOME/.config/fish/config.fish"
+            ;;
+        *)
+            echo "$HOME/.profile"
+            ;;
+    esac
+}
+
+add_to_path() {
+    local install_dir="$1"
+    local shell_name profile_file export_line
+
+    shell_name="$(basename "${SHELL:-/bin/sh}")"
+    profile_file="$(detect_shell_profile)"
+
+    if [ "$shell_name" = "fish" ]; then
+        export_line="fish_add_path ${install_dir}"
+    else
+        export_line="export PATH=\"${install_dir}:\$PATH\""
+    fi
+
+    # Don't duplicate if already present in the profile
+    if [ -f "$profile_file" ] && grep -qF "$install_dir" "$profile_file" 2>/dev/null; then
+        info "PATH" "already configured in ${profile_file}"
+        return
+    fi
+
+    info "PATH" "adding ${install_dir} to ${profile_file}"
+
+    mkdir -p "$(dirname "$profile_file")"
+    printf '\n# Added by forge installer\n%s\n' "$export_line" >> "$profile_file"
+
+    info "PATH" "updated ${profile_file} — restart your shell or run: source ${profile_file}"
+}
+
 main() {
     local version="${1:-}"
     local os arch target
@@ -91,26 +144,15 @@ main() {
 
     info "Installed" "forge ${version} to ${INSTALL_DIR}/forge"
 
-    # Check PATH
-    if ! echo "$PATH" | tr ':' '\n' | grep -qx "$INSTALL_DIR"; then
-        warn "${INSTALL_DIR} is not in your PATH"
-        echo ""
-        echo "Add it by appending one of these to your shell profile:"
-        echo ""
-        echo "  # bash (~/.bashrc)"
-        echo "  export PATH=\"${INSTALL_DIR}:\$PATH\""
-        echo ""
-        echo "  # zsh (~/.zshrc)"
-        echo "  export PATH=\"${INSTALL_DIR}:\$PATH\""
-        echo ""
-        echo "  # fish (~/.config/fish/config.fish)"
-        echo "  fish_add_path ${INSTALL_DIR}"
-        echo ""
-        echo "Then restart your shell or run: source ~/.bashrc"
+    # Ensure INSTALL_DIR is on PATH
+    if echo "$PATH" | tr ':' '\n' | grep -qx "$INSTALL_DIR"; then
+        info "PATH" "already contains ${INSTALL_DIR}"
+    else
+        add_to_path "$INSTALL_DIR"
     fi
 
     echo ""
-    info "Done!" "Run 'forge --version' to verify."
+    info "Done!" "Run 'forge --version' to verify (restart your shell or open a new terminal)."
 }
 
 main "$@"

@@ -29,7 +29,7 @@ Or install a specific version:
 curl -fsSL https://raw.githubusercontent.com/jspwrd/forge/main/install.sh | bash -s -- v0.1.0
 ```
 
-The installer places the binary in `~/.forge/bin` and prints instructions for adding it to your `PATH`.
+The installer places the binary in `~/.forge/bin` and automatically adds it to your shell's `PATH` (supports bash, zsh, and fish).
 
 ### Install from source
 
