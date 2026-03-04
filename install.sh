@@ -128,7 +128,7 @@ main() {
 
     local tmpdir
     tmpdir="$(mktemp -d)"
-    trap 'rm -rf "$tmpdir"' EXIT
+    trap 'rm -rf "${tmpdir:-}"' EXIT
 
     download "$url" "${tmpdir}/${tarball}" || err "download failed — does ${version} exist for ${target}?"
 
@@ -152,7 +152,18 @@ main() {
     fi
 
     echo ""
-    info "Done!" "Run 'forge --version' to verify (restart your shell or open a new terminal)."
+    info "Done!" "forge ${version} is installed!"
+
+    # Tell the user how to activate in the current shell
+    if ! echo "$PATH" | tr ':' '\n' | grep -qx "$INSTALL_DIR"; then
+        local profile_file
+        profile_file="$(detect_shell_profile)"
+        echo ""
+        info "Next" "run this to activate forge in your current shell:"
+        echo ""
+        echo "  source ${profile_file}"
+        echo ""
+    fi
 }
 
 main "$@"
