@@ -30,14 +30,18 @@ fn encode_ipv4(value: &str, size: usize) -> Result<Vec<u8>> {
 }
 
 fn encode_u8(value: &str, size: usize) -> Result<Vec<u8>> {
-    let n: u8 = value.parse().map_err(|_| anyhow::anyhow!("invalid u8: {value}"))?;
+    let n: u8 = value
+        .parse()
+        .map_err(|_| anyhow::anyhow!("invalid u8: {value}"))?;
     let mut result = vec![n];
     result.resize(size, 0);
     Ok(result)
 }
 
 fn encode_u16(value: &str, size: usize) -> Result<Vec<u8>> {
-    let n: u16 = value.parse().map_err(|_| anyhow::anyhow!("invalid u16: {value}"))?;
+    let n: u16 = value
+        .parse()
+        .map_err(|_| anyhow::anyhow!("invalid u16: {value}"))?;
     let bytes = n.to_be_bytes();
     let mut result = bytes.to_vec();
     result.resize(size, 0);
@@ -45,7 +49,9 @@ fn encode_u16(value: &str, size: usize) -> Result<Vec<u8>> {
 }
 
 fn encode_u32(value: &str, size: usize) -> Result<Vec<u8>> {
-    let n: u32 = value.parse().map_err(|_| anyhow::anyhow!("invalid u32: {value}"))?;
+    let n: u32 = value
+        .parse()
+        .map_err(|_| anyhow::anyhow!("invalid u32: {value}"))?;
     let bytes = n.to_be_bytes();
     let mut result = bytes.to_vec();
     result.resize(size, 0);

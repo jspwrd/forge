@@ -33,11 +33,7 @@ pub fn discover_tests(project_dir: &Path) -> Result<Vec<PathBuf>> {
     Ok(tests)
 }
 
-pub fn run_c_tests(
-    project_dir: &Path,
-    compiler: &str,
-    output: &OutputConfig,
-) -> Result<bool> {
+pub fn run_c_tests(project_dir: &Path, compiler: &str, output: &OutputConfig) -> Result<bool> {
     let tests = discover_tests(project_dir)?;
 
     if tests.is_empty() {
@@ -52,10 +48,7 @@ pub fn run_c_tests(
     let src_dir = project_dir.join("src");
 
     for test_file in &tests {
-        let test_name = test_file
-            .file_stem()
-            .unwrap_or_default()
-            .to_string_lossy();
+        let test_name = test_file.file_stem().unwrap_or_default().to_string_lossy();
 
         let test_bin = bin_dir.join(&*test_name);
 

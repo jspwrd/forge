@@ -16,7 +16,11 @@ use clap::{Parser, Subcommand};
 use crate::util::output::OutputConfig;
 
 #[derive(Parser)]
-#[command(name = "forge", version, about = "Build system for C/C++ cross-compilation")]
+#[command(
+    name = "forge",
+    version,
+    about = "Build system for C/C++ cross-compilation"
+)]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Command,

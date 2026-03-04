@@ -78,7 +78,9 @@ pub fn init_project(output: &OutputConfig) -> Result<()> {
     fs::write(manifest_path, templates::forge_toml(&name))?;
 
     // Create directories that don't exist
-    let dirs = ["src", "scripts", "vendor", "targets", "certs", "bin", "tests"];
+    let dirs = [
+        "src", "scripts", "vendor", "targets", "certs", "bin", "tests",
+    ];
     for dir in &dirs {
         let path = Path::new(dir);
         if !path.exists() {

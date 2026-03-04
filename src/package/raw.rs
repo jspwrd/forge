@@ -36,7 +36,11 @@ pub fn package_raw(
             "czf",
             archive_path.to_str().unwrap_or(""),
             "-C",
-            binary_path.parent().unwrap_or(Path::new(".")).to_str().unwrap_or(""),
+            binary_path
+                .parent()
+                .unwrap_or(Path::new("."))
+                .to_str()
+                .unwrap_or(""),
             &binary_name,
         ])
         .output()
